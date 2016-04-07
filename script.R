@@ -36,14 +36,15 @@ unique(UniData$university_name, incomparables = FALSE)
 unique(UniData$country)
 
 # Plot top universities from around the world based on country 2016
-df <- data.frame(Uni2016[1:100,])
-countries <- as.data.frame(table(df$country))
-countries <- countries[which(countries$Frequency >= 1),]
+top100 <- data.frame(Uni2016[1:100,])
+countries <- as.data.frame(table(top100$country))
 colnames(countries) <- c("Country", "Frequency")
+countries <- countries[which(countries$Frequency >= 1),]
+
 
 plot <- ggplot(countries, aes(x = countries$Country, y = countries$Frequency, fill = countries$Frequency))+xlab("Country") + ylab("Number of universities in each country")+geom_bar(stat = "identity")+ggtitle("Countries with Universities in top 100 (2016)")+geom_text(check_overlap = TRUE, aes(label = countries$Frequency)) 
 plot + theme(
-  text = element_text(size=16, colour = "GREEN"),
+  text = element_text(size=16, colour = "RED"),
   axis.text = element_text(size = 8),
   axis.text.x = element_text(size = 8),
   axis.text.y = element_text(size = 8),
@@ -57,6 +58,48 @@ plot + theme(
 )
 
 print(plot)  
-  
-  
+head(top100)
+sapply(top100, class)
+
+# Method for converting factor to numeric value
+is.factor(top100$total_score)
+top100$total_score <- as.numeric(as.character(top100$total_score))
+names(top100)
+
+# Cleaning data, removing = from world rank
+help(gsub)
+library(stringr)
+str_replace_all(top100$world_rank, "[^[:alnum:]]", "")
+typeof(world_rank)
+
+top100$world_rank <- str_replace_all(top100$world_rank,
+                                     "[^[:alnum:]]", "")
+
+# Converting data back to factor for decision tree (Bad Idea)
+top100$world_rank <- as.factor(top100$world_rank)
+str(top100)
+
+# Fit a tree model with top 100 universities 
+# to find useful inputs
+install.packages("rpart")
+install.packages("rattle")
+install.packages("rpart.plot")
+install.packages("RColorBrewer")
+library(rpart)
+library(rattle)
+library(rpart.plot)
+library(RColorBrewer)
+
+#Remove non alphanumeric values
+str(top100$international)
+top100$international <- str_replace_all(top100$international,
+                                     "[^[:alnum:]]", "")
+top100$international <- as.factor(top100$international)
+
+# Check score for research (volume, income and reputation), teaching, and citation scores and how they affect world ranking. 
+tree <- rpart(world_rank ~ research + teaching + citations, data = top100, method = "class")
+plot(tree)
+text(tree)
+prp(tree)
+
 
