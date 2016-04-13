@@ -36,8 +36,8 @@ unique(UniData$university_name, incomparables = FALSE)
 unique(UniData$country)
 
 # Plot top universities from around the world based on country 2016
-top100 <- data.frame(Uni2016[1:100,])
-countries <- as.data.frame(table(top100$country))
+top1002016 <- data.frame(Uni2016[1:100,])
+countries <- as.data.frame(table(top1002016$country))
 colnames(countries) <- c("Country", "Frequency")
 countries <- countries[which(countries$Frequency >= 1),]
 
@@ -58,25 +58,25 @@ plot + theme(
 )
 
 print(plot)  
-head(top100)
-sapply(top100, class)
+head(top1002016)
+sapply(top1002016, class)
 
 # Method for converting factor to numeric value
-is.factor(top100$total_score)
-top100$total_score <- as.numeric(as.character(top100$total_score))
-names(top100)
+is.factor(top1002016$total_score)
+top1002016$total_score <- as.numeric(as.character(top1002016$total_score))
+names(top1002016)
 
 # Cleaning data, removing = from world rank
 help(gsub)
 library(stringr)
-str_replace_all(top100$world_rank, "[^[:alnum:]]", "")
+str_replace_all(top1002016$world_rank, "[^[:alnum:]]", "")
 typeof(world_rank)
 
-top100$world_rank <- str_replace_all(top100$world_rank,
+top1002016$world_rank <- str_replace_all(top1002016$world_rank,
                                      "[^[:alnum:]]", "")
 
 # Converting data back to factor for decision tree (Bad Idea)
-top100$world_rank <- as.factor(top100$world_rank)
+top1002016$world_rank <- as.factor(top1002016$world_rank)
 str(top100)
 
 # Fit a tree model with top 100 universities 
@@ -91,15 +91,39 @@ library(rpart.plot)
 library(RColorBrewer)
 
 #Remove non alphanumeric values
-str(top100$international)
-top100$international <- str_replace_all(top100$international,
+str(top1002016$international)
+top1002016$international <- str_replace_all(top1002016$international,
                                      "[^[:alnum:]]", "")
-top100$international <- as.factor(top100$international)
+top1002016$international <- as.factor(top1002016$international)
 
 # Check score for research (volume, income and reputation), teaching, and citation scores and how they affect world ranking. 
-tree <- rpart(world_rank ~ research + teaching + citations, data = top100, method = "class")
+tree <- rpart(world_rank ~ research + teaching + citations, data = top1002016, method = "class")
 plot(tree)
 text(tree)
 prp(tree)
+
+summary(tree)
+
+top1002014 <- data.frame(Uni2014[1:100,])
+# world rankings 2015 decision tree
+tree <- rpart(world_rank ~ research + teaching + citations, data = top1002014, method = "class")
+plot(tree)
+text(tree)
+prp(tree)
+
+summary(tree)
+
+install.packages("plotly")
+library(plotly)
+# Simple scatter plot
+plot_ly(data = top1002016, x=research, y=teaching, mode = "markers", color = c(100:1))
+plot_ly(data = top1002016, x=research, y=citations, mode = "markers")
+
+# with colour scale
+plot_ly(data = top1002016, x=research, y=teaching, mode = "markers", color = country)
+
+
+
+
 
 
