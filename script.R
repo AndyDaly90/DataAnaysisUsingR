@@ -70,14 +70,14 @@ names(top1002016)
 help(gsub)
 library(stringr)
 str_replace_all(top1002016$world_rank, "[^[:alnum:]]", "")
-typeof(world_rank)
+typeof(top1002016$world_rank)
 
 top1002016$world_rank <- str_replace_all(top1002016$world_rank,
                                      "[^[:alnum:]]", "")
 
 # Converting data back to factor for decision tree (Bad Idea)
 top1002016$world_rank <- as.factor(top1002016$world_rank)
-str(top100)
+str(top1002015)
 
 # Fit a tree model with top 100 universities 
 # to find useful inputs
@@ -104,8 +104,26 @@ prp(tree)
 
 summary(tree)
 
+top1002016 <- data.frame(Uni2016[1:100,])
+# world rankings 2016 decision tree
+tree <- rpart(world_rank ~ research + teaching + citations, data = top1002016, method = "class")
+plot(tree)
+text(tree)
+prp(tree)
+
+summary(tree)
+
+top1002015 <- data.frame(Uni2015[1:100,])
+# world rankings 2016 decision tree
+tree <- rpart(world_rank ~ research + teaching + citations, data = top1002015, method = "class")
+plot(tree)
+text(tree)
+prp(tree)
+
+summary(tree)
+
 top1002014 <- data.frame(Uni2014[1:100,])
-# world rankings 2015 decision tree
+# world rankings 2016 decision tree
 tree <- rpart(world_rank ~ research + teaching + citations, data = top1002014, method = "class")
 plot(tree)
 text(tree)
@@ -117,11 +135,11 @@ install.packages("plotly")
 library(plotly)
 # Simple scatter plot
 plot_ly(data = top1002016, x=research, y=teaching, mode = "markers", color = c(100:1))
-plot_ly(data = top1002016, x=research, y=citations, mode = "markers")
+plot_ly(data = top1002016, x=research, y=citations, mode = "markers", color = c(100:1))
+# look at regression GLM plot
 
-# with colour scale
-plot_ly(data = top1002016, x=research, y=teaching, mode = "markers", color = country)
-
+plot <- plot_ly(data = top1002015, x=research, y=teaching, mode = "markers", color = c(100:1))
+plot <- plot_ly(data = top1002014, x=research, y=teaching, mode = "markers", color = c(100:1))
 
 
 
