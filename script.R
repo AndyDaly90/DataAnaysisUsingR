@@ -1,7 +1,9 @@
 install.packages("ggplot2")
 install.packages("readr")
+install.packages("cowplot")
 library(ggplot2)
 library(readr)
+library(cowplot)
 
 UniData <- read.csv("timesData.csv")
 
@@ -43,20 +45,6 @@ countries <- countries[which(countries$Frequency >= 1),]
 
 
 plot <- ggplot(countries, aes(x = countries$Country, y = countries$Frequency, fill = countries$Frequency))+xlab("Country") + ylab("Number of universities in each country")+geom_bar(stat = "identity")+ggtitle("Countries with Universities in top 100 (2016)")+geom_text(check_overlap = TRUE, aes(label = countries$Frequency)) 
-plot + theme(
-  text = element_text(size=16, colour = "RED"),
-  axis.text = element_text(size = 8),
-  axis.text.x = element_text(size = 8),
-  axis.text.y = element_text(size = 8),
-  legend.key = element_rect(fill = "white"),
-  legend.background = element_rect(fill = "#e0ffff"),
-  legend.position = "top",
-  legend.text =  element_text(size = 8),
-  #panel.grid.major = element_line(colour = "navy"),
-  panel.grid.minor = element_blank(),
-  panel.background = element_rect(fill = "#e0ffff")
-)
-
 print(plot)  
 head(top1002016)
 sapply(top1002016, class)
@@ -136,12 +124,28 @@ library(plotly)
 # Simple scatter plot
 plot_ly(data = top1002016, x=research, y=teaching, mode = "markers", color = c(100:1))
 plot_ly(data = top1002016, x=research, y=citations, mode = "markers", color = c(100:1))
-# look at regression GLM plot
+
 
 plot <- plot_ly(data = top1002015, x=research, y=teaching, mode = "markers", color = c(100:1))
 plot <- plot_ly(data = top1002014, x=research, y=teaching, mode = "markers", color = c(100:1))
 
+# Ireland vs USA, UK (Research Scores 2011-2016)
+subsetIRE<-subset(UniData,country=="Republic of Ireland")
+subsetUSA<-subset(UniData,country=="United States of America")
+subsetUK<- subset(UniData,country=="United Kingdom")
 
+plotIRE <- ggplot(subsetIRE, aes(x=research, color=factor(year)))+
+  geom_density()+
+  scale_x_continuous(limits = c(0,100));
 
+plotUSA <- ggplot(subsetUSA, aes(x=research, color=factor(year)))+
+  geom_density()+
+  scale_x_continuous(limits = c(0,100));
 
+plotUK <- ggplot(subsetUK, aes(x=research, color=factor(year)))+
+  geom_density()+
+  scale_x_continuous(limits = c(0,100));
+
+plot_grid(plotIRE, plotUK, labels=c("Ireland", "UK"))
+plot_grid(plotIRE, plotUSA, labels=c("Ireland", "USA"))
 
